@@ -1,6 +1,13 @@
 spring:
   application:
     name: k-ai-code-father-backend
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/k_ai_code_father
+    username: root
+    password: 123456
+
 server:
   port: 8123
   servlet:
@@ -11,7 +18,7 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: com.k.kaicodefather.controller
-# knife4j???????????????
+# knife4j
 knife4j:
   enable: true
   setting:
