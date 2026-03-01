@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
  * 文件保存器
  * @author KuangZixian
  */
+@Deprecated
 public class CodeFileSaver {
 
     /**

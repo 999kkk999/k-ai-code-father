@@ -34,11 +34,12 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("做一个登录页面，总共不超过 20 行", CodeGenTypeEnum.MULTI_FILE);
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("做一个登录页面，总共不超过 20 行", CodeGenTypeEnum.HTML);
         //阻塞等待所有数据收集完成
         List<String> result = codeStream.collectList().block();
         //验证结果
         Assertions.assertNotNull(result);
+        //拼接字符串，得到完整内容
         String completeContent = StrUtil.join("", result);
         Assertions.assertNotNull(completeContent);
     }
