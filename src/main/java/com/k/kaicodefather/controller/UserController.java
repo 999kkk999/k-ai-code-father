@@ -9,7 +9,7 @@ import com.k.kaicodefather.constant.UserConstant;
 import com.k.kaicodefather.exception.BusinessException;
 import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.exception.ThrowUtils;
-import com.k.kaicodefather.model.dto.*;
+import com.k.kaicodefather.model.dto.user.*;
 import com.k.kaicodefather.model.vo.LoginUserVO;
 import com.k.kaicodefather.model.vo.UserVO;
 import com.mybatisflex.core.paginate.Page;

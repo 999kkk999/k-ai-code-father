@@ -5,7 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.k.kaicodefather.exception.BusinessException;
 import com.k.kaicodefather.exception.ErrorCode;
-import com.k.kaicodefather.model.dto.UserQueryRequest;
+import com.k.kaicodefather.model.dto.user.UserQueryRequest;
 import com.k.kaicodefather.model.enums.UserRoleEnum;
 import com.k.kaicodefather.model.vo.LoginUserVO;
 import com.k.kaicodefather.model.vo.UserVO;

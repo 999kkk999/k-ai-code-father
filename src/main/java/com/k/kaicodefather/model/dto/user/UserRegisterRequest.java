@@ -1,4 +1,4 @@
-package com.k.kaicodefather.model.dto;
+package com.k.kaicodefather.model.dto.user;
 
 import lombok.Data;
 

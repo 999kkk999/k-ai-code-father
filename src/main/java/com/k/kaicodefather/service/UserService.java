@@ -1,7 +1,6 @@
 package com.k.kaicodefather.service;
 
-import cn.hutool.http.server.HttpServerRequest;
-import com.k.kaicodefather.model.dto.UserQueryRequest;
+import com.k.kaicodefather.model.dto.user.UserQueryRequest;
 import com.k.kaicodefather.model.vo.LoginUserVO;
 import com.k.kaicodefather.model.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
