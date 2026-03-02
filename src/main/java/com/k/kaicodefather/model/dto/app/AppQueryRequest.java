@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 查询应用请求
+ * 查询应用请求类
  *
  * @author KuangZixian
  */

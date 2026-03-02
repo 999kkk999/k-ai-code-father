@@ -5,22 +5,17 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 修改应用请求类
+ * 部署请求类
  *
  * @author KuangZixian
  */
 @Data
-public class AppUpdateRequest implements Serializable {
+public class AppDeployRequest implements Serializable {
 
     /**
-     * id
+     * 应用 id
      */
-    private Long id;
-
-    /**
-     * 应用名称
-     */
-    private String appName;
+    private Long appId;
 
     private static final long serialVersionUID = 1L;
 }

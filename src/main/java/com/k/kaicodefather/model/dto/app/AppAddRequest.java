@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 新增应用请求
+ * 新增应用请求类
  *
  * @author KuangZixian
  */
