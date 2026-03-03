@@ -13,9 +13,11 @@ import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.exception.ThrowUtils;
 import com.k.kaicodefather.model.dto.app.AppQueryRequest;
 import com.k.kaicodefather.model.entity.User;
+import com.k.kaicodefather.model.enums.ChatHistoryMessageTypeEnum;
 import com.k.kaicodefather.model.enums.CodeGenTypeEnum;
 import com.k.kaicodefather.model.vo.AppVO;
 import com.k.kaicodefather.model.vo.UserVO;
+import com.k.kaicodefather.service.ChatHistoryService;
 import com.k.kaicodefather.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -23,12 +25,14 @@ import com.k.kaicodefather.model.entity.App;
 import com.k.kaicodefather.mapper.AppMapper;
 import com.k.kaicodefather.service.AppService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +45,7 @@ import java.util.stream.Collectors;
  *
  * @author <a href="https://github.com/999kkk999">程序员旷子贤</a>
  */
+@Slf4j
 @Service
 public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
 
@@ -50,8 +55,11 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     private AiCodeGeneratorFacade aiCodeGeneratorFacade;
 
+    @Resource
+    private ChatHistoryService chatHistoryService;
+
     @Override
-    public Flux<ServerSentEvent<String>> chatToGenCode(Long appId, String userMessage, User loginUser) {
+    public Flux<String> chatToGenCode(Long appId, String userMessage, User loginUser) {
         //1.参数校验
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 错误");
         ThrowUtils.throwIf(userMessage == null, ErrorCode.PARAMS_ERROR, "用户消息不能为空");
@@ -67,22 +75,29 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型: " + codeGenType);
         }
-        //5.调用AI生成代码
+        //5.通过校验后，添加用户消息到对话历史
+        chatHistoryService.addChatMessage(appId, userMessage, ChatHistoryMessageTypeEnum.USER.getValue(), loginUser.getId());
+        //6.调用AI生成代码生成代码（流式）
         Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
+        //7.收集AI响应内容，并在完成后记录到对话历史中
+        StringBuilder aiResponseBuilder = new StringBuilder();
+        return contentFlux
+                .map(chunk -> {
+                    //收集AI响应内容
+                    aiResponseBuilder.append(chunk);
+                    return chunk;
+                })
+                .doOnComplete(() -> {
+                    //流式响应完成后添加AI消息到对话历史
+                    String aiResponse = aiResponseBuilder.toString();
+                    chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
 
-        return contentFlux.map(chunk -> {
-            Map<String, String> wrapper = Map.of("d", chunk);
-            String jsonStr = JSONUtil.toJsonStr(wrapper);
-            return ServerSentEvent.<String>builder()
-                    .data(jsonStr)
-                    .build();
-        }).concatWith(Mono.just(
-                //发送结束事件
-                ServerSentEvent.<String>builder()
-                        .event("done")
-                        .data("")
-                        .build()
-        ));
+                })
+                .doOnError(error -> {
+                    //如果AI回复失败，也要记录错误消息
+                    String aiResponse = "AI回复失败：" + error.getMessage();
+                    chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
+                });
     }
 
     @Override
@@ -194,4 +209,33 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                 .eq("userId", userId)
                 .orderBy(sortField, "ascend".equals(sortOrder));
     }
+
+
+    /**
+     * 删除应用时关联删除对话历史
+     *
+     * @param id 应用ID
+     * @return 是否成功
+     */
+    @Override
+    public boolean removeById(Serializable id) {
+        if (id == null) {
+            return false;
+        }
+        // 转换为 Long 类型
+        Long appId = Long.valueOf(id.toString());
+        if (appId <= 0) {
+            return false;
+        }
+        // 先删除关联的对话历史
+        try {
+            chatHistoryService.deleteByAppId(appId);
+        } catch (Exception e) {
+            // 记录日志但不阻止应用删除
+            log.error("删除应用关联对话历史失败: {}", e.getMessage());
+        }
+        // 删除应用
+        return super.removeById(id);
+    }
+
 }
