@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
     @GetMapping("/")
-    public BaseResponse<String> heathCheck(){
+    public BaseResponse<String> healthCheck(){
         return ResultUtils.success("ok");
     }
 }
