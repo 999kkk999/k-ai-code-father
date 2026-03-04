@@ -2,6 +2,7 @@ package com.k.kaicodefather.core.saver;
 
 import cn.hutool.core.util.StrUtil;
 import com.k.kaicodefather.ai.model.MultiFileCodeResult;
+import com.k.kaicodefather.core.saver.CodeFileSaverTemplate;
 import com.k.kaicodefather.exception.BusinessException;
 import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.model.enums.CodeGenTypeEnum;
@@ -9,12 +10,12 @@ import com.k.kaicodefather.model.enums.CodeGenTypeEnum;
 /**
  * 多文件代码保存器
  *
- * @author KuangZixian
+ * @author yupi
  */
 public class MultiFileCodeFileSaverTemplate extends CodeFileSaverTemplate<MultiFileCodeResult> {
 
     @Override
-    public CodeGenTypeEnum getCodeType() {
+    protected CodeGenTypeEnum getCodeType() {
         return CodeGenTypeEnum.MULTI_FILE;
     }
 

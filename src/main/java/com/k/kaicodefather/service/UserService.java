@@ -1,11 +1,11 @@
 package com.k.kaicodefather.service;
 
 import com.k.kaicodefather.model.dto.user.UserQueryRequest;
+import com.k.kaicodefather.model.entity.User;
 import com.k.kaicodefather.model.vo.LoginUserVO;
 import com.k.kaicodefather.model.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.k.kaicodefather.model.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 用户 服务层。
  *
- * @author <a href="https://github.com/999kkk999">程序员旷子贤</a>
+ * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
  */
 public interface UserService extends IService<User> {
 
@@ -28,65 +28,67 @@ public interface UserService extends IService<User> {
     long userRegister(String userAccount, String userPassword, String checkPassword);
 
     /**
+     * 获取脱敏的已登录用户信息
+     *
+     * @return
+     */
+    LoginUserVO getLoginUserVO(User user);
+
+    /**
      * 用户登录
      *
      * @param userAccount  用户账户
      * @param userPassword 用户密码
+     * @param request
      * @return 脱敏后的用户信息
      */
     LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
     /**
-     *  获取当前登录用户
+     * 获取当前登录用户
+     *
      * @param request
      * @return
      */
     User getLoginUser(HttpServletRequest request);
 
     /**
-     *  获取脱敏后的用户信息
-     * @param user  当前登录用户
-     * @return 脱敏后的用户信息
-     */
-    LoginUserVO getLoginUserVO(User user);
-
-    /**
      * 获取脱敏后的用户信息
      *
-     * @param user  用户信息
-     * @return 脱敏后的用户信息
+     * @param user 用户信息
+     * @return
      */
     UserVO getUserVO(User user);
 
     /**
-     * 获取脱敏后的用户列表
+     * 获取脱敏后的用户信息（分页）
      *
      * @param userList 用户列表
-     * @return 脱敏后的用户列表
+     * @return
      */
     List<UserVO> getUserVOList(List<User> userList);
 
     /**
-     * 通过用户查询请求获取QueryWrapper查询条件
+     * 用户注销
      *
-     * @param userQueryRequest 用户查询条件
-     * @return 查询条件
+     * @param request
+     * @return 退出登录是否成功
+     */
+    boolean userLogout(HttpServletRequest request);
+
+    /**
+     * 根据查询条件构造数据查询参数
+     *
+     * @param userQueryRequest
+     * @return
      */
     QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
 
     /**
-     * 获取加密密码
+     * 加密
      *
      * @param userPassword 用户密码
-     * @return 加密后的密码
+     * @return 加密后的用户密码
      */
     String getEncryptPassword(String userPassword);
-
-    /**
-     * 用户注销
-     *
-     * @param request 请求
-     * @return 是否注销成功
-     */
-    boolean userLogout(HttpServletRequest request);
 }

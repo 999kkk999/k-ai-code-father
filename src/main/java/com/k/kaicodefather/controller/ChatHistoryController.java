@@ -7,19 +7,17 @@ import com.k.kaicodefather.constant.UserConstant;
 import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.exception.ThrowUtils;
 import com.k.kaicodefather.model.dto.chathistory.ChatHistoryQueryRequest;
+import com.k.kaicodefather.model.entity.ChatHistory;
 import com.k.kaicodefather.model.entity.User;
+import com.k.kaicodefather.service.ChatHistoryService;
 import com.k.kaicodefather.service.UserService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.k.kaicodefather.model.entity.ChatHistory;
-import com.k.kaicodefather.service.ChatHistoryService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 对话历史 控制层。
@@ -72,7 +70,4 @@ public class ChatHistoryController {
         Page<ChatHistory> result = chatHistoryService.page(Page.of(pageNum, pageSize), queryWrapper);
         return ResultUtils.success(result);
     }
-
-
-
 }

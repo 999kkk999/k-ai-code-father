@@ -1,6 +1,7 @@
 package com.k.kaicodefather.core.parser;
 
 import com.k.kaicodefather.ai.model.HtmlCodeResult;
+import com.k.kaicodefather.core.parser.CodeParser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * HTML 单文件代码解析器
  *
- * @author KuangZixian
+ * @author yupi
  */
 public class HtmlCodeParser implements CodeParser<HtmlCodeResult> {
 
@@ -29,7 +30,7 @@ public class HtmlCodeParser implements CodeParser<HtmlCodeResult> {
     }
 
     /**
-     * 提取HTML代码内容
+     * 提取 HTML 代码内容
      *
      * @param content 原始内容
      * @return HTML代码

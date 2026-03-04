@@ -1,6 +1,7 @@
 package com.k.kaicodefather.core.parser;
 
 import com.k.kaicodefather.ai.model.MultiFileCodeResult;
+import com.k.kaicodefather.core.parser.CodeParser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * 多文件代码解析器（HTML + CSS + JS）
  *
- * @author KuangZixian
+ * @author yupi
  */
 public class MultiFileCodeParser implements CodeParser<MultiFileCodeResult> {
 

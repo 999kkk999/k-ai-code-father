@@ -2,6 +2,8 @@ package com.k.kaicodefather.core.saver;
 
 import com.k.kaicodefather.ai.model.HtmlCodeResult;
 import com.k.kaicodefather.ai.model.MultiFileCodeResult;
+import com.k.kaicodefather.core.saver.HtmlCodeFileSaverTemplate;
+import com.k.kaicodefather.core.saver.MultiFileCodeFileSaverTemplate;
 import com.k.kaicodefather.exception.BusinessException;
 import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.model.enums.CodeGenTypeEnum;
@@ -12,7 +14,7 @@ import java.io.File;
  * 代码文件保存执行器
  * 根据代码生成类型执行相应的保存逻辑
  *
- * @author KuangZixian
+ * @author yupi
  */
 public class CodeFileSaverExecutor {
 
@@ -28,10 +30,10 @@ public class CodeFileSaverExecutor {
      * @param appId 应用 ID
      * @return 保存的目录
      */
-    public static File executeSaver(Object codeResult, CodeGenTypeEnum codeGenType,Long appId) {
+    public static File executeSaver(Object codeResult, CodeGenTypeEnum codeGenType, Long appId) {
         return switch (codeGenType) {
-            case HTML -> htmlCodeFileSaver.saveCode((HtmlCodeResult) codeResult,appId);
-            case MULTI_FILE -> multiFileCodeFileSaver.saveCode((MultiFileCodeResult) codeResult,appId);
+            case HTML -> htmlCodeFileSaver.saveCode((HtmlCodeResult) codeResult, appId);
+            case MULTI_FILE -> multiFileCodeFileSaver.saveCode((MultiFileCodeResult) codeResult, appId);
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型: " + codeGenType);
         };
     }

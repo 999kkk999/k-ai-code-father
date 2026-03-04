@@ -37,7 +37,7 @@ public class UserController {
      * 用户注册
      *
      * @param userRegisterRequest 用户注册请求
-     * @return 注册结构(用户id)
+     * @return 注册结果
      */
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -54,7 +54,7 @@ public class UserController {
      *
      * @param userLoginRequest 用户登录请求
      * @param request          请求对象
-     * @return 登录结构(用户信息)
+     * @return 脱敏后的用户登录信息
      */
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
@@ -65,26 +65,21 @@ public class UserController {
         return ResultUtils.success(loginUserVO);
     }
 
-    /**
-     * 获取当前登录用户
-     *
-     * @param request 请求对象
-     * @return 登录用户
-     */
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
-        User user = userService.getLoginUser(request);
-        return ResultUtils.success(userService.getLoginUserVO(user));
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(userService.getLoginUserVO(loginUser));
     }
 
     /**
      * 用户注销
+     *
      * @param request 请求对象
-     * @return 登出结果
+     * @return
      */
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
-        ThrowUtils.throwIf(request==null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
         return ResultUtils.success(result);
     }
@@ -102,9 +97,6 @@ public class UserController {
         final String DEFAULT_PASSWORD = "12345678";
         String encryptPassword = userService.getEncryptPassword(DEFAULT_PASSWORD);
         user.setUserPassword(encryptPassword);
-        if(userAddRequest.getUserRole() == null || userAddRequest.getUserRole().isEmpty()){
-            user.setUserRole(UserConstant.DEFAULT_ROLE);
-        }
         boolean result = userService.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(user.getId());
@@ -180,8 +172,4 @@ public class UserController {
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
     }
-
-
-
-
 }
