@@ -28,7 +28,7 @@ import static com.k.kaicodefather.constant.UserConstant.USER_LOGIN_STATE;
 /**
  * 用户 服务层实现。
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+ * @author KuangZixian
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {

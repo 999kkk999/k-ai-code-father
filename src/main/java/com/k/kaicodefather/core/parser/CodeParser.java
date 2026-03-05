@@ -3,7 +3,7 @@ package com.k.kaicodefather.core.parser;
 /**
  * 代码解析器策略接口
  *
- * @author yupi
+ * @author KuangZixian
  */
 public interface CodeParser<T> {
 

@@ -7,6 +7,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.k.kaicodefather.constant.AppConstant;
 import com.k.kaicodefather.core.AiCodeGeneratorFacade;
+import com.k.kaicodefather.core.handler.StreamHandlerExecutor;
 import com.k.kaicodefather.exception.BusinessException;
 import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.exception.ThrowUtils;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 /**
  * 应用 服务层实现。
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+ * @author KuangZixian
  */
 @Service
 @Slf4j
@@ -54,6 +55,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private ChatHistoryService chatHistoryService;
+
+
+    @Resource
+    protected StreamHandlerExecutor streamHandlerExecutor;
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
@@ -73,25 +78,13 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用代码生成类型错误");
         }
-        // 5. 在调用 AI 前，先保存用户消息到数据库中
+        // 5. 通过校验后，添加用户消息到对话历史
         chatHistoryService.addChatMessage(appId, message, ChatHistoryMessageTypeEnum.USER.getValue(), loginUser.getId());
         // 6. 调用 AI 生成代码（流式）
-        Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
-        // 7. 收集 AI 响应的内容，并且在完成后保存记录到对话历史
-        StringBuilder aiResponseBuilder = new StringBuilder();
-        return contentFlux.map(chunk -> {
-            // 实时收集 AI 响应的内容
-            aiResponseBuilder.append(chunk);
-            return chunk;
-        }).doOnComplete(() -> {
-            // 流式返回完成后，保存 AI 消息到对话历史中
-            String aiResponse = aiResponseBuilder.toString();
-            chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
-        }).doOnError(error -> {
-            // 如果 AI 回复失败，也需要保存记录到数据库中
-            String errorMessage = "AI 回复失败：" + error.getMessage();
-            chatHistoryService.addChatMessage(appId, errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
-        });
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
+        // 7. 收集 AI 响应内容并在完成后记录到对话历史
+        return streamHandlerExecutor.doExecute(codeStream, chatHistoryService, appId, loginUser, codeGenTypeEnum);
+
     }
 
     @Override
