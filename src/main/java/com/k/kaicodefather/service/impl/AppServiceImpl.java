@@ -22,6 +22,7 @@ import com.k.kaicodefather.model.vo.AppVO;
 import com.k.kaicodefather.model.vo.UserVO;
 import com.k.kaicodefather.service.AppService;
 import com.k.kaicodefather.service.ChatHistoryService;
+import com.k.kaicodefather.service.ScreenshotService;
 import com.k.kaicodefather.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -62,6 +63,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private VueProjectBuilder vueProjectBuilder;
+
+    @Resource
+    private ScreenshotService screenshotService;
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
@@ -142,8 +146,30 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         updateApp.setDeployedTime(LocalDateTime.now());
         boolean updateResult = this.updateById(updateApp);
         ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "更新应用部署信息失败");
-        // 10. 返回可访问的 URL 地址
-        return String.format("%s/%s", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        // 10. 得到可访问的 URL 地址
+        String appDeployUrl = String.format("%s/%s", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        // 11. 异步生成截图并更新封面
+        generateAppScreenshotAsync(appId,appDeployUrl);
+        return appDeployUrl;
+    }
+
+    /**
+     * 异步生成应用截图并更新封面
+     * @param appId 应用ID
+     * @param appDeployUrl 应用访问URL
+     */
+    @Override
+    public void generateAppScreenshotAsync(Long appId,String appDeployUrl){
+        //使用虚拟线程并执行
+        Thread.startVirtualThread(() -> {
+            String screenshotUrl = screenshotService.generateAndUploadScreenshot(appDeployUrl);
+            //更新数据库封面
+            App updateApp = new App();
+            updateApp.setId(appId);
+            updateApp.setCover(screenshotUrl);
+            boolean updateResult = this.updateById(updateApp);
+            ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "更新应用封面失败");
+        });
     }
 
     @Override
