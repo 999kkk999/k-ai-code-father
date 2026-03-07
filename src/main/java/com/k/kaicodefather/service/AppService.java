@@ -1,5 +1,6 @@
 package com.k.kaicodefather.service;
 
+import com.k.kaicodefather.model.dto.app.AppAddRequest;
 import com.k.kaicodefather.model.dto.app.AppQueryRequest;
 import com.k.kaicodefather.model.entity.App;
 import com.k.kaicodefather.model.entity.User;
@@ -67,4 +68,12 @@ public interface AppService extends IService<App> {
      */
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
 
+    /**
+     * 创建应用
+     *
+     * @param appAddRequest
+     * @param loginUser
+     * @return
+     */
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 }
