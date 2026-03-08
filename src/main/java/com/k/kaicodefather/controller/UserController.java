@@ -65,6 +65,12 @@ public class UserController {
         return ResultUtils.success(loginUserVO);
     }
 
+    /**
+     * 获取当前登录用户
+     *
+     * @param request 请求对象
+     * @return 脱敏后的用户信息
+     */
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -97,6 +103,8 @@ public class UserController {
         final String DEFAULT_PASSWORD = "12345678";
         String encryptPassword = userService.getEncryptPassword(DEFAULT_PASSWORD);
         user.setUserPassword(encryptPassword);
+        //默认头像
+        user.setUserAvatar("https://aicode-1382222242.cos.ap-guangzhou.myqcloud.com/screenshots/2026/03/07/userAvatar.jpg");
         boolean result = userService.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(user.getId());
