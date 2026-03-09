@@ -1,4 +1,4 @@
-package com.k.kaicodefather.langgragh4j.state;
+package com.k.kaicodefather.langgragh4j.model;
 
 import com.k.kaicodefather.langgragh4j.model.enums.ImageCategoryEnum;
 import lombok.AllArgsConstructor;

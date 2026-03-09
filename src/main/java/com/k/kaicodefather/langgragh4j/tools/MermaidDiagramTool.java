@@ -8,7 +8,7 @@ import cn.hutool.system.SystemUtil;
 import com.k.kaicodefather.exception.BusinessException;
 import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.langgragh4j.model.enums.ImageCategoryEnum;
-import com.k.kaicodefather.langgragh4j.state.ImageResource;
+import com.k.kaicodefather.langgragh4j.model.ImageResource;
 import com.k.kaicodefather.manager.CosManager;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;

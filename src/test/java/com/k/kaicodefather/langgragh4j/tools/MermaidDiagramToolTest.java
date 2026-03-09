@@ -1,7 +1,7 @@
 package com.k.kaicodefather.langgragh4j.tools;
 
 import com.k.kaicodefather.langgragh4j.model.enums.ImageCategoryEnum;
-import com.k.kaicodefather.langgragh4j.state.ImageResource;
+import com.k.kaicodefather.langgragh4j.model.ImageResource;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

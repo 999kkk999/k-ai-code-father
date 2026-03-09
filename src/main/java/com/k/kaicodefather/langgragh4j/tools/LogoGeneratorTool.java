@@ -5,7 +5,7 @@ import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
 import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
 import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisResult;
 import com.k.kaicodefather.langgragh4j.model.enums.ImageCategoryEnum;
-import com.k.kaicodefather.langgragh4j.state.ImageResource;
+import com.k.kaicodefather.langgragh4j.model.ImageResource;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import lombok.extern.slf4j.Slf4j;

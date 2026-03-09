@@ -2,7 +2,7 @@ package com.k.kaicodefather.langgragh4j.node;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.k.kaicodefather.langgragh4j.state.ImageResource;
+import com.k.kaicodefather.langgragh4j.model.ImageResource;
 import com.k.kaicodefather.langgragh4j.state.WorkflowContext;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
