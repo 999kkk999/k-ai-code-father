@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 构建 Vue 项目
+ *
  * @author KuangZixian
  */
 @Slf4j

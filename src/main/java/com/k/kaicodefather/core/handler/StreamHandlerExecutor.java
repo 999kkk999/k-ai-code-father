@@ -1,5 +1,7 @@
 package com.k.kaicodefather.core.handler;
 
+import com.k.kaicodefather.core.handler.JsonMessageStreamHandler;
+import com.k.kaicodefather.core.handler.SimpleTextStreamHandler;
 import com.k.kaicodefather.model.entity.User;
 import com.k.kaicodefather.model.enums.CodeGenTypeEnum;
 import com.k.kaicodefather.service.ChatHistoryService;
@@ -13,6 +15,7 @@ import reactor.core.publisher.Flux;
  * 根据代码生成类型创建合适的流处理器：
  * 1. 传统的 Flux<String> 流（HTML、MULTI_FILE） -> SimpleTextStreamHandler
  * 2. TokenStream 格式的复杂流（VUE_PROJECT） -> JsonMessageStreamHandler
+ *
  * @author KuangZixian
  */
 @Slf4j
