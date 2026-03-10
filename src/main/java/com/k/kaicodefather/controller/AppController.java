@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.k.kaicodefather.ai.AiCodeGenTypeRoutingService;
+import com.k.kaicodefather.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.k.kaicodefather.annotation.AuthCheck;
 import com.k.kaicodefather.common.BaseResponse;
 import com.k.kaicodefather.common.DeleteRequest;
@@ -58,7 +59,7 @@ public class AppController {
     private ProjectDownloadService projectDownloadService;
 
     @Resource
-    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
+    private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
 
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
