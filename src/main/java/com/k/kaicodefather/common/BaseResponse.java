@@ -16,7 +16,9 @@ import java.io.Serializable;
 
 /**
  * 通用响应类
+ *
  * @param <T>
+ * @author KuangZixian
  */
 @Data
 public class BaseResponse<T> implements Serializable {

@@ -3,8 +3,6 @@ package com.k.kaicodefather.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.k.kaicodefather.ai.AiCodeGenTypeRoutingService;
-import com.k.kaicodefather.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.k.kaicodefather.annotation.AuthCheck;
 import com.k.kaicodefather.common.BaseResponse;
 import com.k.kaicodefather.common.DeleteRequest;
@@ -15,9 +13,12 @@ import com.k.kaicodefather.exception.BusinessException;
 import com.k.kaicodefather.exception.ErrorCode;
 import com.k.kaicodefather.exception.ThrowUtils;
 import com.k.kaicodefather.model.dto.app.*;
+import com.k.kaicodefather.model.entity.App;
 import com.k.kaicodefather.model.entity.User;
-import com.k.kaicodefather.model.enums.CodeGenTypeEnum;
 import com.k.kaicodefather.model.vo.AppVO;
+import com.k.kaicodefather.ratelimter.annotation.RateLimit;
+import com.k.kaicodefather.ratelimter.config.RateLimitType;
+import com.k.kaicodefather.service.AppService;
 import com.k.kaicodefather.service.ProjectDownloadService;
 import com.k.kaicodefather.service.UserService;
 import com.mybatisflex.core.paginate.Page;
@@ -29,13 +30,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.k.kaicodefather.model.entity.App;
-import com.k.kaicodefather.service.AppService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.awt.*;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +41,7 @@ import java.util.Map;
 /**
  * 应用 控制层。
  *
- * @author <a href="https://github.com/999kkk999">程序员旷子贤</a>
+ * @author KuangZixian
  */
 @RestController
 @RequestMapping("/app")
@@ -59,10 +56,8 @@ public class AppController {
     @Resource
     private ProjectDownloadService projectDownloadService;
 
-    @Resource
-    private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
-
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
                                                        @RequestParam String message,
                                                        HttpServletRequest request) {
@@ -111,6 +106,41 @@ public class AppController {
         String deployUrl = appService.deployApp(appId, loginUser);
         // 返回部署 URL
         return ResultUtils.success(deployUrl);
+    }
+
+    /**
+     * 下载应用代码
+     *
+     * @param appId    应用ID
+     * @param request  请求
+     * @param response 响应
+     */
+    @GetMapping("/download/{appId}")
+    public void downloadAppCode(@PathVariable Long appId,
+                                HttpServletRequest request,
+                                HttpServletResponse response) {
+        // 1. 基础校验
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
+        // 2. 查询应用信息
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
+        // 3. 权限校验：只有应用创建者可以下载代码
+        User loginUser = userService.getLoginUser(request);
+        if (!app.getUserId().equals(loginUser.getId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限下载该应用代码");
+        }
+        // 4. 构建应用代码目录路径（生成目录，非部署目录）
+        String codeGenType = app.getCodeGenType();
+        String sourceDirName = codeGenType + "_" + appId;
+        String sourceDirPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + sourceDirName;
+        // 5. 检查代码目录是否存在
+        File sourceDir = new File(sourceDirPath);
+        ThrowUtils.throwIf(!sourceDir.exists() || !sourceDir.isDirectory(),
+                ErrorCode.NOT_FOUND_ERROR, "应用代码不存在，请先生成代码");
+        // 6. 生成下载文件名（不建议添加中文内容）
+        String downloadFileName = String.valueOf(appId);
+        // 7. 调用通用下载服务
+        projectDownloadService.downloadProjectAsZip(sourceDirPath, downloadFileName, response);
     }
 
     /**
@@ -183,41 +213,6 @@ public class AppController {
         }
         boolean result = appService.removeById(id);
         return ResultUtils.success(result);
-    }
-
-    /**
-     * 下载应用代码
-     *
-     * @param appId    应用ID
-     * @param request  请求
-     * @param response 响应
-     */
-    @GetMapping("/download/{appId}")
-    public void downloadAppCode(@PathVariable Long appId,
-                                HttpServletRequest request,
-                                HttpServletResponse response) {
-        // 1. 基础校验
-        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
-        // 2. 查询应用信息
-        App app = appService.getById(appId);
-        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
-        // 3. 权限校验：只有应用创建者可以下载代码
-        User loginUser = userService.getLoginUser(request);
-        if (!app.getUserId().equals(loginUser.getId())) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限下载该应用代码");
-        }
-        // 4. 构建应用代码目录路径（生成目录，非部署目录）
-        String codeGenType = app.getCodeGenType();
-        String sourceDirName = codeGenType + "_" + appId;
-        String sourceDirPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + sourceDirName;
-        // 5. 检查代码目录是否存在
-        File sourceDir = new File(sourceDirPath);
-        ThrowUtils.throwIf(!sourceDir.exists() || !sourceDir.isDirectory(),
-                ErrorCode.NOT_FOUND_ERROR, "应用代码不存在，请先生成代码");
-        // 6. 生成下载文件名（不建议添加中文内容）
-        String downloadFileName = String.valueOf(appId);
-        // 7. 调用通用下载服务
-        projectDownloadService.downloadProjectAsZip(sourceDirPath, downloadFileName, response);
     }
 
     /**
@@ -374,5 +369,4 @@ public class AppController {
         // 获取封装类
         return ResultUtils.success(appService.getAppVO(app));
     }
-
 }
