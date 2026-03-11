@@ -2,7 +2,7 @@ package com.k.kaicodefather.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-
+import com.k.kaicodefather.ai.AiCodeGeneratorService;
 import com.k.kaicodefather.ai.guardrail.PromptSafetyInputGuardrail;
 import com.k.kaicodefather.ai.tools.ToolManager;
 import com.k.kaicodefather.exception.BusinessException;
@@ -104,7 +104,7 @@ public class AiCodeGeneratorServiceFactory {
             // Vue 项目生成，使用工具调用和推理模型
             case VUE_PROJECT -> {
                 // 使用多例模式的 StreamingChatModel 解决并发问题
-                StreamingChatModel reasoningStreamingChatModel = SpringContextUtil.getBean("reasoningStreamingChatModelPrototype", StreamingChatModel.class);
+                StreamingChatModel reasoningStreamingChatModel = SpringContextUtil.getBean("streamingChatModelPrototype", StreamingChatModel.class);
                 yield AiServices.builder(AiCodeGeneratorService.class)
                         .chatModel(chatModel)
                         .streamingChatModel(reasoningStreamingChatModel)

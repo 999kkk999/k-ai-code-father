@@ -24,7 +24,7 @@ public class StreamingChatModelConfig {
 
     private Integer maxTokens;
 
-    private Double temperature;
+//    private Double temperature;
 
     private boolean logRequests;
 
@@ -38,7 +38,7 @@ public class StreamingChatModelConfig {
                 .baseUrl(baseUrl)
                 .modelName(modelName)
                 .maxTokens(maxTokens)
-                .temperature(temperature)
+//                .temperature(temperature)
                 .logRequests(logRequests)
                 .logResponses(logResponses)
                 .build();

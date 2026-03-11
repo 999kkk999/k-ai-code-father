@@ -8,7 +8,6 @@ import com.k.kaicodefather.ai.model.MultiFileCodeResult;
 import com.k.kaicodefather.ai.model.message.AiResponseMessage;
 import com.k.kaicodefather.ai.model.message.ToolExecutedMessage;
 import com.k.kaicodefather.ai.model.message.ToolRequestMessage;
-import com.k.kaicodefather.constant.AppConstant;
 import com.k.kaicodefather.core.builder.VueProjectBuilder;
 import com.k.kaicodefather.core.parser.CodeParserExecutor;
 import com.k.kaicodefather.core.saver.CodeFileSaverExecutor;
@@ -95,7 +94,7 @@ public class AiCodeGeneratorFacade {
             }
             case VUE_PROJECT -> {
                 TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processTokenStream(tokenStream, appId);
+                yield processTokenStream(tokenStream);
             }
             default -> {
                 String errorMessage = "不支持的生成类型：" + codeGenTypeEnum.getValue();
@@ -108,10 +107,9 @@ public class AiCodeGeneratorFacade {
      * 将 TokenStream 转换为 Flux<String>，并传递工具调用信息
      *
      * @param tokenStream TokenStream 对象
-     * @param appId       应用 ID
      * @return Flux<String> 流式响应
      */
-    private Flux<String> processTokenStream(TokenStream tokenStream, Long appId) {
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
         return Flux.create(sink -> {
             tokenStream.onPartialResponse((String partialResponse) -> {
                         AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
@@ -126,9 +124,6 @@ public class AiCodeGeneratorFacade {
                         sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
                     })
                     .onCompleteResponse((ChatResponse response) -> {
-                        // 执行 Vue 项目构建（同步执行，确保预览时项目已就绪）
-                        String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + "/vue_project_" + appId;
-                        vueProjectBuilder.buildProject(projectPath);
                         sink.complete();
                     })
                     .onError((Throwable error) -> {

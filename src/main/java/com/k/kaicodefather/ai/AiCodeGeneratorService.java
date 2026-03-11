@@ -8,6 +8,9 @@ import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 import reactor.core.publisher.Flux;
 
+/**
+ * @author KuangZixian
+ */
 public interface AiCodeGeneratorService {
 
     /**
