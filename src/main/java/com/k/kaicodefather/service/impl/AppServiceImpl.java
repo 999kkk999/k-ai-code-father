@@ -113,6 +113,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         // 使用 AI 智能选择代码生成类型（多例模式）
         AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService = aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
         CodeGenTypeEnum selectedCodeGenType = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
+//        CodeGenTypeEnum selectedCodeGenType = CodeGenTypeEnum.VUE_PROJECT;
         app.setCodeGenType(selectedCodeGenType.getValue());
         // 插入数据库
         boolean result = this.save(app);
@@ -262,6 +263,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                 .eq("deployKey", deployKey)
                 .eq("priority", priority)
                 .eq("userId", userId)
+                .eq("isDelete", 0)
                 .orderBy(sortField, "ascend".equals(sortOrder));
     }
 
@@ -287,6 +289,17 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
             log.error("删除应用关联的对话历史失败：{}", e.getMessage());
         }
         // 删除应用
-        return super.removeById(id);
+        App app = super.getById(appId);
+        if (app == null) {
+            return false;
+        }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id", appId);
+        app.setIsDelete(1);
+        boolean result = super.update(app, queryWrapper);
+        if (!result){
+            return false;
+        }
+        return true;
     }
 }

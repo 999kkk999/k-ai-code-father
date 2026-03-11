@@ -26,6 +26,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -43,6 +44,7 @@ import java.util.Map;
  *
  * @author KuangZixian
  */
+@Slf4j
 @RestController
 @RequestMapping("/app")
 public class AppController {
@@ -212,6 +214,8 @@ public class AppController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = appService.removeById(id);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        log.info("应用：{} 删除成功", id);
         return ResultUtils.success(result);
     }
 
